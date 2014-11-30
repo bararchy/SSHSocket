@@ -164,16 +164,9 @@ class SSHSocket
 		# Authentication loop
 		while true
 			msg = SSHSocket_Module.ssh_message_get(@sshsession)
-			puts "messge is: #{msg}"
-			unless msg 
-				break
-			end
+			next unless msg
 			type = SSHSocket_Module.ssh_message_type(msg)
-			unless type > -1
-				SSHSocket_Module.ssh_message_free(msg)
-				break
-			end
-			puts "type is: #{type}"
+			next unless type > -1
 			case type
 				when Messages_General::SSH_REQUEST_AUTH
 					subtype = SSHSocket_Module.ssh_message_subtype(msg)
@@ -189,7 +182,7 @@ class SSHSocket
 								SSHSocket_Module.ssh_message_free(msg)
 								break
 							else
-								puts SSHSocket_Module.ssh_get_error(@sshsession)
+								raise "Wrong username or password"
 								SSHSocket_Module.ssh_disconnect(@sshsession)
 								break
 							end
