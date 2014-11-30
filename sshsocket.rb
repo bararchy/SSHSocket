@@ -1,11 +1,7 @@
 require 'rubygems'
 require 'ffi'
-require 'thread'
-require 'socket'
-require 'hex_string'
+
 # Defs
-threads = []
-max_threads = 5
 pass = "test"
 user = "test"
 
@@ -48,7 +44,7 @@ end
 
 
 
-module Options
+module Bind_Options
 	SSH_BIND_OPTIONS_BINDADDR = 0
 	SSH_BIND_OPTIONS_BINDPORT = 1
 	SSH_BIND_OPTIONS_BINDPORT_STR = 2
@@ -82,7 +78,7 @@ def check_error(result, pointer)
 		if pointer.nil?
 			puts "Error #{result.to_i}"
 		else
-			puts "Error #{result.to_i}: #{SSHSocket.ssh_get_error(pointer)}"
+			puts "Error #{result.to_i}: #{SSHSocket.ssh_get_erדror(pointer)}"
 		end
 	end
 	if result.kind_of?(String) && result.empty?
@@ -95,19 +91,19 @@ end
 def initialize_ssh
 	sshbind = SSHSocket.ssh_bind_new
 	# Configure the session
-	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Options::SSH_BIND_OPTIONS_BINDADDR, :string, "0.0.0.0")
+	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Bind_Options::SSH_BIND_OPTIONS_BINDADDR, :string, "0.0.0.0")
 	check_error(result, sshbind)
-	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Options::SSH_BIND_OPTIONS_BINDPORT_STR, :string, "5555")
+	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Bind_Options::SSH_BIND_OPTIONS_BINDPORT_STR, :string, "5555")
 	check_error(result, sshbind)
-	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Options::SSH_BIND_OPTIONS_RSAKEY, :string, "/home/unshadow/Desktop/keys_for_ssh/ssh_host_rsa_key")
+	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Bind_Options::SSH_BIND_OPTIONS_RSAKEY, :string, "/home/unshadow/Desktop/keys_for_ssh/ssh_host_rsa_key")
 	check_error(result, sshbind)
-	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Options::SSH_BIND_OPTIONS_DSAKEY, :string, "/home/unshadow/Desktop/keys_for_ssh/ssh_host_dsa_key")
+	result = SSHSocket.ssh_bind_options_set(sshbind, :int, Bind_Options::SSH_BIND_OPTIONS_DSAKEY, :string, "/home/unshadow/Desktop/keys_for_ssh/ssh_host_dsa_key")
 	check_error(result, sshbind)
-	sshsession = SSHSocket.ssh_new
-	result = SSHSocket.ssh_bind_listen(sshbind)
-	check_error(result, sshbind)
-	return sshbind, sshsession
+	return sshbind
 end
+sshsession = SSHSocket.ssh_new
+result = SSHSocket.ssh_bind_listen(sshbind)
+check_error(result, sshbind)
 
 sshbind,sshsession = initialize_ssh
 SSHSocket.ssh_bind_accept(sshbind, sshsession)
@@ -181,29 +177,31 @@ while true
 	end
 end
 
+
+
 # Shell loop.to_ruby
 
- /* wait for a shell */
-do {
-message = ssh_message_get(session);
-if(message != NULL) {
-if(ssh_message_type(message) == SSH_REQUEST_CHANNEL) {
-if(ssh_message_subtype(message) == SSH_CHANNEL_REQUEST_SHELL) {
-shell = 1;
-ssh_message_channel_request_reply_success(message);
-ssh_message_free(message);
-break;
-} else if(ssh_message_subtype(message) == SSH_CHANNEL_REQUEST_PTY) {
-ssh_message_channel_request_reply_success(message);
-ssh_message_free(message);
-continue;
-}
-}
-ssh_message_reply_default(message);
-ssh_message_free(message);
-} else {
-break;
-}
+#  /* wait for a shell */
+# do {
+# message = ssh_message_get(session);
+# if(message != NULL) {
+# if(ssh_message_type(message) == SSH_REQUEST_CHANNEL) {
+# if(ssh_message_subtype(message) == SSH_CHANNEL_REQUEST_SHELL) {
+# shell = 1;
+# ssh_message_channel_request_reply_success(message);
+# ssh_message_free(message);
+# break;
+# } else if(ssh_message_subtype(message) == SSH_CHANNEL_REQUEST_PTY) {
+# ssh_message_channel_request_reply_success(message);
+# ssh_message_free(message);
+# continue;
+# }
+# }
+# ssh_message_reply_default(message);
+# ssh_message_free(message);
+# } else {
+# break;
+# }
 
 
 SSHSocket.ssh_bind_free(sshbind)
