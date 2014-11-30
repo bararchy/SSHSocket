@@ -6,5 +6,5 @@ require '../lib/sshsocket'
 
 options = {}
 
-sock = SSHSocket.new()
+sock = SSHSocket::Socket.new()
 
