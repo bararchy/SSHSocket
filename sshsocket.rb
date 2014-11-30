@@ -38,6 +38,7 @@ module SSHSocket_Module
 	attach_function :ssh_message_auth_password, [SSH_message], :string
 	attach_function :ssh_message_auth_reply_success, [SSH_message, :int], :int
 	attach_function :ssh_message_channel_request_open_reply_accept, [SSH_message], SSH_channel
+	attach_function :ssh_message_channel_request_reply_success, [SSH_message], :int
 end
 
 module General_Options
@@ -151,6 +152,7 @@ class SSHSocket
 		end
 		auth_loop
 		chan_loop
+		shell_loop
 	end
 	
 	def close	
@@ -206,14 +208,9 @@ class SSHSocket
 		while true
 			msg = SSHSocket_Module.ssh_message_get(@sshsession)
 			puts "messge is: #{msg}"
-			unless msg 
-				break
-			end
+			next unless msg 
 			type = SSHSocket_Module.ssh_message_type(msg)
-			unless type > -1
-				SSHSocket_Module.ssh_message_free(msg)
-				break
-			end
+			next unless type > -1
 			subtype = SSHSocket_Module.ssh_message_subtype(msg)
 			if type == Messages_General::SSH_REQUEST_CHANNEL_OPEN && subtype == 1
 				chan = SSHSocket_Module.ssh_message_channel_request_open_reply_accept(msg)
@@ -225,28 +222,23 @@ class SSHSocket
 			end
 		end
 	end
+
+	def shell_loop
+		while true
+			msg = SSHSocket_Module.ssh_message_get(@sshsession)
+			next unless msg
+			type = SSHSocket_Module.ssh_message_type(msg)
+			next unless type > -1
+			subtype = SSHSocket_Module.ssh_message_subtype(msg)
+			if type == Messages_General::SSH_REQUEST_CHANNEL && subtype == 3
+				SSHSocket_Module.ssh_message_channel_request_reply_success(msg)
+				SSHSocket_Module.ssh_message_free(msg)
+				puts "We got a request to open a shell"
+				break
+			else
+				SSHSocket_Module.ssh_message_reply_default(msg)
+				SSHSocket_Module.ssh_message_free(msg)
+			end
+		end
+	end
 end
-
-# Shell loop.to_ruby
-
-#  /* wait for a shell */
-# do {
-# message = ssh_message_get(session);
-# if(message != NULL) {
-# if(ssh_message_type(message) == SSH_REQUEST_CHANNEL) {
-# if(ssh_message_subtype(message) == SSH_CHANNEL_REQUEST_SHELL) {
-# shell = 1;
-# ssh_message_channel_request_reply_success(message);
-# ssh_message_free(message);
-# break;
-# } else if(ssh_message_subtype(message) == SSH_CHANNEL_REQUEST_PTY) {
-# ssh_message_channel_request_reply_success(message);
-# ssh_message_free(message);
-# continue;
-# }
-# }
-# ssh_message_reply_default(message);
-# ssh_message_free(message);
-# } else {
-# break;
-# }
