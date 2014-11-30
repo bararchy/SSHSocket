@@ -20,3 +20,6 @@ sock.listen
 sock.close
 ```
  Licensed under: The MIT License (MIT)
+
+Thanks: 
+* @ik5 (idokan@gmail.com).
