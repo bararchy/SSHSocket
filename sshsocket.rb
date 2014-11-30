@@ -162,6 +162,7 @@ class SSHSocket
 	private
 	def auth_loop
 		# Authentication loop
+		try = 0
 		while true
 			msg = SSHSocket_Module.ssh_message_get(@sshsession)
 			next unless msg
@@ -182,9 +183,11 @@ class SSHSocket
 								SSHSocket_Module.ssh_message_free(msg)
 								break
 							else
-								raise "Wrong username or password"
-								SSHSocket_Module.ssh_disconnect(@sshsession)
-								break
+								puts "Wrong username or password"
+								SSHSocket_Module.ssh_message_reply_default(msg)
+								try = try + 1
+								break if try > 2
+								next
 							end
 						when Messages_Auth::SSH_AUTH_METHOD_NONE
 							puts "User #{SSHSocket_Module.ssh_message_auth_user(msg)} wants to auth with unknown auth #{SSHSocket_Module.ssh_message_subtype(msg)}\n"
