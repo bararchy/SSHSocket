@@ -19,3 +19,4 @@ sock = SSHSocket.new(rsakey: '/path/to/ssh_host_rsa_key',
 sock.listen
 sock.close
 ```
+ Licensed under: The MIT License (MIT)
