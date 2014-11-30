@@ -149,9 +149,19 @@ class SSHSocket
 			SSHSocket_Module.ssh_bind_free(@sshbind)
 			exit 1	
 		end
+		auth_loop
+		chan_loop
+	end
+	
+	def close	
+		SSHSocket_Module.ssh_bind_free(@sshbind)
+		SSHSocket_Module.ssh_disconnect(@sshsession)
+	end
 
+
+	private
+	def auth_loop
 		# Authentication loop
-		exit 1 if ! exchange
 		while true
 			msg = SSHSocket_Module.ssh_message_get(@sshsession)
 			puts "messge is: #{msg}"
@@ -173,7 +183,7 @@ class SSHSocket
 							user_ssh = SSHSocket_Module.ssh_message_auth_user(msg)
 							pass_ssh = SSHSocket_Module.ssh_message_auth_password(msg)
 							puts "Got user: #{user_ssh} and pass: #{pass_ssh}"
-							if user_ssh == user && pass_ssh == pass
+							if user_ssh == @user_name && pass_ssh == @password
 								puts "Password Auth OK"
 								SSHSocket_Module.ssh_message_auth_reply_success(msg,0)
 								SSHSocket_Module.ssh_message_free(msg)
@@ -193,7 +203,9 @@ class SSHSocket
 					SSHSocket_Module.ssh_message_reply_default(msg)
 			end
 		end
+	end
 
+	def chan_loop
 		# Channel Loop
 		while true
 			msg = SSHSocket_Module.ssh_message_get(@sshsession)
@@ -217,11 +229,6 @@ class SSHSocket
 			end
 		end
 	end
-	
-	def close	
-		SSHSocket_Module.ssh_bind_free(@sshbind)
-		SSHSocket_Module.ssh_disconnect(@sshsession)
-	end		
 end
 
 sock = SSHSocket.new(rsakey: '/home/unshadow/Desktop/keys_for_ssh/ssh_host_rsa_key', 
