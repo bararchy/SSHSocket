@@ -224,18 +224,6 @@ class SSHSocket
 	end
 end
 
-sock = SSHSocket.new(rsakey: '/home/unshadow/Desktop/keys_for_ssh/ssh_host_rsa_key', 
-			   		 dsakey: '/home/unshadow/Desktop/keys_for_ssh/ssh_host_dsa_key',
-			   		 password: 'test',
-			   		 user: 'test',
-			   		 port: '5555',
-			   		 listen_address: '0.0.0.0',
-			   		 banner: 'Bars_SSH',
-			   		 timeout: "300")
-sock.listen
-sock.close
-
-
 # Shell loop.to_ruby
 
 #  /* wait for a shell */
