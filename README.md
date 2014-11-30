@@ -8,7 +8,7 @@ Usage:
 ```ruby
 require 'sshsocket.rb'
 
-sock = SSHSocket.new(rsakey: '/path/to/ssh_host_rsa_key', 
+sock = SSHSocket::Socket.new(rsakey: '/path/to/ssh_host_rsa_key', 
 			   		 dsakey: '/path/to/ssh_host_dsa_key',
 			   		 password: 'test',
 			   		 user: 'test',
