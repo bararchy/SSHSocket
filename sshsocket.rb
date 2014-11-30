@@ -238,8 +238,6 @@ class SSHSocket
 				puts "No Error: #{result}"
 			end
 		end
-
-		def Error()
 	end 
 end
 
