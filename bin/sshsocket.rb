@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'ffi'
+require 'bundler'
+Bundler.require(:default)
 
 # Defs
 module SSHSocket_Module
