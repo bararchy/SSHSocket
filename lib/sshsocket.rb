@@ -121,10 +121,11 @@ class SSHSocket
 		@banner         ||= options[:banner]         rescue nil
 
 		# Some senity cheks
-		raise ArgumentError.new('Configuration Error: rsa key is given but dsa key is missing !') if @rsakey && ! @dsakey
+        raise ArgumentError.new('Configuration Error: rsa file is missing') unless @rsakey
+		raise ArgumentError.new('Configuration Error: dsa file is missing') unless @dsakey
 		raise ArgumentError.new('Configuration Error: no port given to liten on') if ! @port	
-		raise ArgumentError.new('Configuration Error: Missing user or password') if ! @user_name || ! @password
-		
+		raise ArgumentError.new('Configuration Error: Missing credentials') if ! @user_name || ! @password
+
 		@sshbind = SSHSocket_Module.ssh_bind_new # initialize the ssh session instance
 		# Configure the session intance
 		SSHSocket_Module.ssh_bind_options_set(@sshbind, :int, Bind_Options::SSH_BIND_OPTIONS_BINDADDR, :string, @listen_address) if @listen_address
